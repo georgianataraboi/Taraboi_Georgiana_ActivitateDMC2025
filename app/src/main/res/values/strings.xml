@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Test_My_Application</string>
+    <string name="button_text">Apasă</string>
+    <string name="greeting_text">Salut, bine ai venit!</string>
+    <string name="input_hint">Introdu numele</string>
+    <string name="success_message">Felicitări, ai reușit! 🚀</string>
+    <string name="number1">Introdu primul număr</string>
+    <string name="number2">Introdu al doilea număr</string>
+    <string name="result">Rezultatul este: %1$.2f</string>
+    <string name="error_message">Te rog să introduci ambele numere!</string>
 </resources>

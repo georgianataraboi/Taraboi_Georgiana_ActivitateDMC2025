@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Test My Application</string>
+    <string name="button_text">Press</string>
+    <string name="greeting_text">Hello, welcome!</string>
+    <string name="input_hint">Enter your name</string>
+    <string name="success_message">Congratulations, you did it! 🚀</string>
+    <string name="number1">Enter first number</string>
+    <string name="number2">Enter second number</string>
+    <string name="result">The result is: %1$.2f</string>
+    <string name="error_message">Please enter both numbers!</string>
+</resources>
