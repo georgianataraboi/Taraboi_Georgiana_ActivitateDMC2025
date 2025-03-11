@@ -8,4 +8,10 @@
     <string name="number2">Introdu al doilea număr</string>
     <string name="result">Rezultatul este: %1$.2f</string>
     <string name="error_message">Te rog să introduci ambele numere!</string>
+    <string-array name="tip_garaj_array">
+        <item>PUBLIC</item>
+        <item>PRIVAT</item>
+        <item>INDUSTRIAL</item>
+    </string-array>
+
 </resources>
