@@ -2,6 +2,7 @@ package com.example.test_my_application;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import java.time.LocalTime;
 
 enum TipGaraj {
     PUBLIC, PRIVAT, INDUSTRIAL
@@ -14,13 +15,16 @@ public class garajtransport implements Parcelable {
     private boolean deschisNonStop;
     private TipGaraj tipGaraj;
 
+    private LocalTime oraDeschidere;
+
     // Constructor
-    public garajtransport(String nume, int capacitate, double suprafata, boolean deschisNonStop, TipGaraj tipGaraj) {
+    public garajtransport(String nume, int capacitate, double suprafata, boolean deschisNonStop, TipGaraj tipGaraj, LocalTime oraDeschidere) {
         this.nume = nume;
         this.capacitate = capacitate;
         this.suprafata = suprafata;
         this.deschisNonStop = deschisNonStop;
         this.tipGaraj = tipGaraj;
+        this.oraDeschidere = oraDeschidere;
     }
 
     // Getters
@@ -30,6 +34,15 @@ public class garajtransport implements Parcelable {
     public boolean isDeschisNonStop() { return deschisNonStop; }
     public TipGaraj getTipGaraj() { return tipGaraj; }
 
+    public LocalTime getOraDeschidere() { return oraDeschidere; }
+
+    //    pt listview
+    @Override
+    public String toString() {
+        return nume + " - " + tipGaraj + " - " + capacitate + " locuri - " +
+                (deschisNonStop ? "Non-Stop" : "Deschis la: " + oraDeschidere);
+    }
+
     // Implementare Parcelable
     protected garajtransport(Parcel in) {
         nume = in.readString();
@@ -37,7 +50,10 @@ public class garajtransport implements Parcelable {
         suprafata = in.readDouble();
         deschisNonStop = in.readByte() != 0;
         tipGaraj = TipGaraj.valueOf(in.readString());
+        String ora = in.readString();
+        oraDeschidere = deschisNonStop ? LocalTime.of(0, 0) : LocalTime.parse(ora);
     }
+
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -46,7 +62,9 @@ public class garajtransport implements Parcelable {
         dest.writeDouble(suprafata);
         dest.writeByte((byte) (deschisNonStop ? 1 : 0));
         dest.writeString(tipGaraj.name());
+        dest.writeString(oraDeschidere.toString());
     }
+
 
     @Override
     public int describeContents() {
