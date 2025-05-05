@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044594835663",
+    "project_id": "tema-android-593c8",
+    "storage_bucket": "tema-android-593c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044594835663:android:4b876a3b38b3c79ad137ba",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4MYP3ZSJhQUfL-on0KEQm5q5x5eqaU2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

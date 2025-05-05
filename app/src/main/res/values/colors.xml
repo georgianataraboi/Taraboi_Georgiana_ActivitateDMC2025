@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="violet">#8A2BE2</color>
+    <color name="indigo">#4B0082</color>
+    <color name="blue_violet">#8A2BE2</color>
+    <color name="dark_violet">#9400D3</color>
+    <color name="medium_violet_red">#C71585</color>
+    <color name="orchid">#DA70D6</color>
+    <color name="thistle">#D8BFD8</color>
+    <color name="plum">#DDA0DD</color>
+    <color name="medium_orchid">#BA55D3</color>
+    <color name="lavender">#E6E6FA</color>
+    <color name="dark_orchid">#9932CC</color>
+    <color name="purple">#800080</color>
+    <color name="fuchsia">#FF00FF</color>
+    <color name="red">#FF0000</color>
+    <color name="dark_red">#8B0000</color>
+    <color name="firebrick">#B22222</color>
+    <color name="light_coral">#F08080</color>
+    <color name="tomato">#FF6347</color>
+    <color name="orangered">#FF4500</color>
+    <color name="orange">#FFA500</color>
+    <color name="dark_orange">#FF8C00</color>
+    <color name="coral">#FF7F50</color>
+    <color name="green_medical">#008000</color> <!-- Replace with actual color code -->
+    <color name="green_dark">#006400</color>    <!-- Replace with actual color code -->
+    <color name="green_light">#90EE90</color>   <!-- Replace with actual color code -->
+    <color name="green_medium">#32CD32</color>  <!-- Replace with actual color code -->
+    <color name="primary_purple">#6200EE</color>
+    <color name="primary_purple_dark">#3700B3</color>
+    <color name="dark_purple">#4A0072</color>
+    <color name="light_purple">#BB86FC</color>
+
+    <!-- Secondary colors -->
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+
+    <!-- Text colors -->
+    <color name="dark_text">#333333</color>
+    <color name="grey_text">#757575</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBackground">#F5F5F5</color>
+    <color name="colorTextPrimary">#333333</color>
+    <color name="colorTextSecondary">#757575</color>
+    <color name="colorWhite">#FFFFFF</color>
+</resources>
