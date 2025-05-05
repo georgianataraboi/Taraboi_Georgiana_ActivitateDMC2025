@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <item name="et_brand" type="id">et_brand</item>-->
+<!--    <item name="et_model" type="id">et_model</item>-->
+<!--    <item name="et_year" type="id">et_year</item>-->
+<!--    <item name="et_price" type="id">et_price</item>-->
+<!--    <item name="btn_add_car" type="id">btn_add_car</item>-->
+<!--    <item name="et_model_search" type="id">et_model_search</item>-->
+<!--    <item name="et_min_year" type="id">et_min_year</item>-->
+<!--    <item name="et_max_year" type="id">et_max_year</item>-->
+<!--    <item name="et_price_threshold" type="id">et_price_threshold</item>-->
+<!--    <item name="et_start_letter" type="id">et_start_letter</item>-->
+<!--    <item name="btn_search_model" type="id">btn_search_model</item>-->
+<!--    <item name="btn_filter_year" type="id">btn_filter_year</item>-->
+<!--    <item name="btn_delete_above" type="id">btn_delete_above</item>-->
+<!--    <item name="btn_delete_below" type="id">btn_delete_below</item>-->
+<!--    <item name="btn_increment_year" type="id">btn_increment_year</item>-->
+<!--    <item name="btn_show_all" type="id">btn_show_all</item>-->
+<!--    <item name="lv_cars" type="id">lv_cars</item>-->
+</resources>
