@@ -1,185 +1,502 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="#F5F5F5"
     tools:context=".SpitalDetailActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="280dp"
-        android:theme="@style/AppTheme">
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIconTint="@android:color/white"
+        app:titleTextColor="@android:color/white" />
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:contentScrim="@color/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:title="">
-
-            <ImageView
-                android:id="@+id/spital_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_hospital"
-                app:layout_collapseMode="parallax" />
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
+    <!-- Main Content Scroll -->
     <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingBottom="24dp">
 
-            <TextView
-                android:id="@+id/spital_nume"
+            <!-- Hospital Header Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="Spitalul Militar Central" />
+                android:layout_margin="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
 
-            <TextView
-                android:id="@+id/spital_adresa"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Header with Hospital Name and Image -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        android:background="@drawable/hospital_header_background">
+
+                        <ImageView
+                            android:id="@+id/spital_image"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_centerInParent="true"
+                            android:background="@drawable/circle_white_background"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_hospital"/>
+<!--                            app:tint="@color/colorPrimary" />-->
+
+                        <TextView
+                            android:id="@+id/spital_nume"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/spital_image"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="Spitalul Militar Cluj-Napoca" />
+
+                    </RelativeLayout>
+
+                    <!-- Contact Information -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Address Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_location"
+                                app:tint="#4CAF50" />
+
+                            <TextView
+                                android:id="@+id/spital_adresa"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:textSize="14sp"
+                                tools:text="Str. General Traian Moșoiu 22, Cluj-Napoca" />
+
+                        </LinearLayout>
+
+                        <!-- Contact Row (Phone and Website) -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <!-- Phone Section -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_phone"
+                                    app:tint="#2196F3" />
+
+                                <TextView
+                                    android:id="@+id/spital_telefon"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:textColor="#2196F3"
+                                    android:textSize="14sp"
+                                    tools:text="0264 598 381" />
+
+                            </LinearLayout>
+
+                            <!-- Website Section -->
+                            <LinearLayout
+                                android:id="@+id/website_container"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_web"
+                                    app:tint="#FF5722" />
+
+                                <TextView
+                                    android:id="@+id/spital_website"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="Website"
+                                    android:textColor="#FF5722"
+                                    android:textSize="14sp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- About Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_doctor"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="Str. Mircea Vulcănescu 88, București" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
 
-            <TextView
-                android:id="@+id/spital_telefon"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Despre Spital"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="60dp"
+                        android:layout_height="3dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/spital_descriere"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#424242"
+                        android:textSize="14sp"
+                        tools:text="Spitalul Military Cluj-Napoca este o unitate medicală de prestigiu..." />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <!-- Weather Card cu funcționalitate completă AccuWeather -->
+            <!-- Weather Card mai mic și mai condensat -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/weather_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_doctor"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="021 319 3051" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:visibility="gone">
 
-            <TextView
-                android:id="@+id/spital_website"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:background="@drawable/weather_gradient_background"
+                    android:gravity="center_vertical">
+
+                    <!-- Weather Icon and Temperature -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/weather_icon"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:padding="4dp"
+                            android:src="@drawable/ic_weather_default" />
+
+                        <TextView
+                            android:id="@+id/weather_temp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="--°C"
+                            android:textColor="@android:color/white"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Weather Details -->
+                    <LinearLayout
+                        android:id="@+id/weather_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/weather_description"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="--"
+                                android:textColor="@android:color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/weather_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Acum"
+                                android:textColor="#E0FFFFFF"
+                                android:textSize="10sp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/weather_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Se încarcă..."
+                            android:textColor="#E0FFFFFF"
+                            android:textSize="11sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                    </LinearLayout>
+
+                    <!-- Loading state -->
+                    <LinearLayout
+                        android:id="@+id/weather_loading"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:visibility="visible">
+
+                        <ProgressBar
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:indeterminateTint="@android:color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Se încarcă..."
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <!-- Medical Team Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_doctor"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorAccent"
-                android:textSize="16sp"
-                tools:text="https://www.scumc.ro" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Despre spital:"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/spital_descriere"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="Spitalul Universitar de Urgență Militar Central oferă servicii medicale de calitate..." />
+                    <!-- Header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Medici:"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Echipa Medicală"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/no_medici_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Nu există medici înregistrați pentru acest spital."
-                android:textColor="@color/colorTextSecondary"
-                android:textSize="16sp"
-                android:visibility="gone" />
+                        <TextView
+                            android:id="@+id/vezi_toti_medicii"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vezi toți ›"
+                            android:textColor="#FF5722"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/medici_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:paddingBottom="16dp" />
+                    </LinearLayout>
 
+                    <View
+                        android:layout_width="60dp"
+                        android:layout_height="3dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/colorPrimary" />
+
+                    <!-- Empty message -->
+                    <TextView
+                        android:id="@+id/no_medici_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:gravity="center"
+                        android:text="Nu există medici înregistrați pentru acest spital."
+                        android:textColor="#757575"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                    <!-- Doctors RecyclerView -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/medici_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp"
+                        android:clipToPadding="false"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="16dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:orientation="horizontal">
 
-                <Button
+                <LinearLayout
                     android:id="@+id/programare_btn"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/button_primary"
-                    android:drawableStart="@drawable/ic_doctor"
-                    android:drawablePadding="8dp"
-                    android:padding="12dp"
-                    android:text="Programare"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF" />
+                    android:background="@drawable/button_primary_round"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <Button
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="@android:color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Programare"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/map_btn"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/button_secondary"
-                    android:drawableStart="@drawable/ic_doctor"
-                    android:drawablePadding="8dp"
-                    android:padding="12dp"
-                    android:text="Vezi pe hartă"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorPrimaryDark" />
+                    android:background="@drawable/button_secondary_round"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_map"
+                        app:tint="@color/colorPrimary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pe Hartă"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

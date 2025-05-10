@@ -63,6 +63,7 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
+                style="@style/PurpleGradientButton"
                 android:text="Login"
                 android:id="@+id/login_button"
                 android:textSize="18sp"

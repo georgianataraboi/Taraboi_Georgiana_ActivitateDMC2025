@@ -28,138 +28,215 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="16dp">
 
             <TextView
                 android:id="@+id/appointment_title"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Completați detaliile programării:"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginBottom="8dp" />
 
+            <!-- Date Selection Section -->
             <TextView
                 android:id="@+id/select_date_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:text="Selectează data:"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appointment_title" />
+                android:textStyle="bold" />
 
-            <CalendarView
-                android:id="@+id/calendar_view"
+            <TextView
+                android:id="@+id/date_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/select_date_text" />
+                android:text="✪ Nu puteți selecta date din trecut"
+                android:textColor="#E91E63"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:layout_marginBottom="4dp" />
 
+            <!-- Calendar wrapper with card styling -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- CalendarView -->
+                    <CalendarView
+                        android:id="@+id/calendar_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="@android:color/white" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Hospital Selection -->
             <TextView
                 android:id="@+id/select_spital_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="Selectează spitalul:"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/calendar_view" />
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
 
-            <Spinner
-                android:id="@+id/spital_spinner"
-                android:layout_width="0dp"
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/select_spital_text" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
+                <Spinner
+                    android:id="@+id/spital_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="@android:color/transparent"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Specialty Selection -->
             <TextView
                 android:id="@+id/select_specialitate_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="Selectează specialitatea:"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/spital_spinner" />
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
 
-            <Spinner
-                android:id="@+id/specialitate_spinner"
-                android:layout_width="0dp"
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/select_specialitate_text" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
+                <Spinner
+                    android:id="@+id/specialitate_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="@android:color/transparent"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Doctor Selection -->
             <TextView
                 android:id="@+id/select_medic_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="Selectează medicul:"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/specialitate_spinner" />
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
 
-            <Spinner
-                android:id="@+id/medic_spinner"
-                android:layout_width="0dp"
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/select_medic_text" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
+                <Spinner
+                    android:id="@+id/medic_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="@android:color/transparent"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Time Selection -->
             <TextView
                 android:id="@+id/select_ora_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="Selectează ora:"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/medic_spinner" />
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
 
-            <Spinner
-                android:id="@+id/ora_spinner"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/time_info"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/select_ora_text" />
+                android:text="✪ Intervalele orare ocupate sau în trecut nu sunt afișate"
+                android:textColor="#E91E63"
+                android:textSize="12sp"
+                android:textStyle="italic" />
 
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <Spinner
+                    android:id="@+id/ora_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="@android:color/transparent"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Loading indicator -->
+            <ProgressBar
+                android:id="@+id/loading_indicator"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="@color/colorPrimary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Status message -->
+            <TextView
+                android:id="@+id/status_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="#E91E63"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Confirm Button -->
             <Button
                 android:id="@+id/submit_button"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:background="@drawable/button_primary"
-                android:padding="12dp"
+                android:background="@drawable/button_purple_gradient"
+                android:elevation="2dp"
+                android:padding="14dp"
                 android:text="Confirmă programarea"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ora_spinner" />
+                android:textSize="16sp" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

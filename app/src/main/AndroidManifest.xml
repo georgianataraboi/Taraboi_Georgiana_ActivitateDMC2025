@@ -6,16 +6,22 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:theme="@style/AppTheme"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
+        <activity
+            android:name=".StatisticsActivity"
+            android:exported="true"
+            android:parentActivityName=".MainActivity" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDpl4RG_ZHQew_9kNokg6ZP9TGfu8sAMkc" />
@@ -34,20 +40,36 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-
-        </activity>
-        <activity android:name=".SpitaleActivity" android:parentActivityName=".MainActivity" />
-        <activity android:name=".MediciActivity" android:parentActivityName=".MainActivity" />
-        <activity android:name=".ProgramareActivity" android:parentActivityName=".MainActivity" />
-        <activity android:name=".SpitalDetailActivity" android:parentActivityName=".SpitaleActivity" />
-        <activity android:name=".MedicDetailActivity" android:parentActivityName=".MediciActivity" />
-        <activity android:name=".ExploreActivity" android:parentActivityName=".MainActivity" />
-        <activity android:name=".MapActivity" android:parentActivityName=".MainActivity" />
+            android:exported="false"></activity>
         <activity
-            android:name=".SimpleProgActivity"
-            android:exported="true"
+            android:name=".SpitaleActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".MediciActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ProgramareActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".SpitalDetailActivity"
+            android:parentActivityName=".SpitaleActivity" />
+        <activity
+            android:name=".MedicDetailActivity"
+            android:parentActivityName=".MediciActivity" />
+        <activity
+            android:name=".ExploreActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".MapActivity"
+            android:parentActivityName=".MainActivity" />
+<!--        <activity-->
+<!--            android:name=".SimpleProgActivity"-->
+<!--            android:exported="true"-->
+<!--            android:parentActivityName=".MainActivity" />-->
+        <service
+            android:name=".SyncService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

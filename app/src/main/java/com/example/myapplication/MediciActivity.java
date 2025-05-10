@@ -1,178 +1,230 @@
 package com.example.myapplication;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class MediciActivity extends AppCompatActivity {
 
     private RecyclerView mediciRecyclerView;
-    private MediciAdapter mediciAdapter;
-    private List<Medic> medicList;
+    private MediciGridAdapter mediciAdapter;
+    private List<Medic> mediciList;
     private List<Medic> filteredList;
-    private DatabaseReference mDatabase;
     private ProgressBar progressBar;
-    private TextView emptyView;
-    private Spinner spitalSpinner;
-    private Spinner specialitateSpinner;
-    private List<String> spitaleList;
-    private List<String> specialitatiList;
+    private TextView emptyView, titleTv;
+    private EditText searchEditText;
+    private ImageView clearSearchButton;
+    private DatabaseReference mDatabase;
+    private String spitalId;
+    private String spitalNume;
+
+    // Adaugă DatabaseHelper și SyncManager
+    private DatabaseHelper dbHelper;
+    private SyncManager syncManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medici);
 
-        // Inițializează Firebase
+        // Obține ID-ul spitalului din intent
+        spitalId = getIntent().getStringExtra("spitalId");
+        spitalNume = getIntent().getStringExtra("spitalNume");
+
+        if (spitalNume == null) {
+            spitalNume = "Medici";
+        }
+
+        // Inițializează Firebase și SQLite
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        dbHelper = DatabaseHelper.getInstance(this);
+        syncManager = new SyncManager(this);
 
         // Configurează toolbar-ul
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Medici " + spitalNume);
 
         // Inițializează vizualizările
         mediciRecyclerView = findViewById(R.id.medici_recycler_view);
         progressBar = findViewById(R.id.progress_bar);
         emptyView = findViewById(R.id.empty_view);
-        spitalSpinner = findViewById(R.id.spital_filter_spinner);
-        specialitateSpinner = findViewById(R.id.specialitate_filter_spinner);
+        titleTv = findViewById(R.id.title_text);
+        searchEditText = findViewById(R.id.search_edit_text);
+        clearSearchButton = findViewById(R.id.clear_search);
 
-        // Configurează RecyclerView
-        medicList = new ArrayList<>();
+        // Setează titlul
+        titleTv.setText("Toți medicii de la " + spitalNume);
+
+        // Configurează RecyclerView cu grid layout pentru medici
+        mediciList = new ArrayList<>();
         filteredList = new ArrayList<>();
-        mediciAdapter = new MediciAdapter(filteredList, this);
-        mediciRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mediciAdapter = new MediciGridAdapter(filteredList, this);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        mediciRecyclerView.setLayoutManager(gridLayoutManager);
+        mediciRecyclerView.setHasFixedSize(true);
         mediciRecyclerView.setAdapter(mediciAdapter);
 
-        // Inițializează listele pentru filtre
-        spitaleList = new ArrayList<>();
-        specialitatiList = new ArrayList<>();
-
-        // Adaugă opțiunea "Toate" la filtre
-        spitaleList.add("Toate spitalele");
-        specialitatiList.add("Toate specialitățile");
-
-        // Configurează spinnerele
-        ArrayAdapter<String> spitaleAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, spitaleList);
-        spitaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spitalSpinner.setAdapter(spitaleAdapter);
-
-        ArrayAdapter<String> specialitatiAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, specialitatiList);
-        specialitatiAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        specialitateSpinner.setAdapter(specialitatiAdapter);
-
-        // Încarcă filtrele și medicii
-        loadSpitaleAndSpecialitati();
-        loadMedici();
-
-        // Configurează listenerii pentru filtre
-        spitalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        // Configurează căutarea
+        searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                filterMedici();
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Afișează sau ascunde butonul de ștergere
+                clearSearchButton.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+
+                // Filtrează lista de medici
+                filterMedici(s.toString());
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Nu faceți nimic
-            }
+            public void afterTextChanged(Editable s) {}
         });
 
-        specialitateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                filterMedici();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Nu faceți nimic
-            }
+        // Configurează butonul de ștergere
+        clearSearchButton.setOnClickListener(v -> {
+            searchEditText.setText("");
+            clearSearchButton.setVisibility(View.GONE);
+            filterMedici("");
         });
+
+        // Încarcă medicii din SQLite mai întâi
+        loadMediciFromSQLite();
     }
 
-    private void loadSpitaleAndSpecialitati() {
-        mDatabase.child("medici").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Set<String> spitaleSet = new HashSet<>();
-                Set<String> specialitatiSet = new HashSet<>();
-
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Medic medic = snapshot.getValue(Medic.class);
-                    if (medic != null) {
-                        spitaleSet.add(medic.getSpital());
-                        specialitatiSet.add(medic.getSpecialitate());
-                    }
-                }
-
-                // Actualizează datele spinner-elor
-                spitaleList.clear();
-                specialitatiList.clear();
-
-                spitaleList.add("Toate spitalele");
-                specialitatiList.add("Toate specialitățile");
-
-                spitaleList.addAll(spitaleSet);
-                specialitatiList.addAll(specialitatiSet);
-
-                ((ArrayAdapter) spitalSpinner.getAdapter()).notifyDataSetChanged();
-                ((ArrayAdapter) specialitateSpinner.getAdapter()).notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(MediciActivity.this,
-                        "Eroare la încărcarea filtrelor: " + databaseError.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void loadMedici() {
+    private void loadMediciFromSQLite() {
         progressBar.setVisibility(View.VISIBLE);
 
-        mDatabase.child("medici").addValueEventListener(new ValueEventListener() {
+        // Încarcă medicii din SQLite
+        List<Medic> mediciFromSQLite;
+
+        if (spitalNume != null && !spitalNume.equals("Medici")) {
+            // Încarcă medicii pentru un spital specific
+            mediciFromSQLite = dbHelper.getMediciForSpital(spitalNume);
+        } else {
+            // Încarcă toți medicii
+            mediciFromSQLite = dbHelper.getAllMedici();
+        }
+
+        if (!mediciFromSQLite.isEmpty()) {
+            // Afișează datele din SQLite
+            mediciList.clear();
+            mediciList.addAll(mediciFromSQLite);
+            filterMedici(searchEditText.getText().toString());
+            progressBar.setVisibility(View.GONE);
+
+            // Sincronizează cu Firebase în background
+            syncMediciWithFirebase();
+        } else {
+            // Dacă SQLite este gol, încarcă din Firebase
+            loadMediciFromFirebase();
+        }
+    }
+
+    private void syncMediciWithFirebase() {
+        // Sincronizare silențioasă în background
+        Query query;
+        if (spitalId != null) {
+            query = mDatabase.child("medici").orderByChild("spital").equalTo(spitalNume);
+        } else {
+            query = mDatabase.child("medici");
+        }
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                medicList.clear();
+                List<Medic> updatedMedici = new ArrayList<>();
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Medic medic = snapshot.getValue(Medic.class);
                     if (medic != null) {
                         medic.setId(snapshot.getKey());
-                        medicList.add(medic);
+                        updatedMedici.add(medic);
+
+                        // Actualizează în SQLite
+                        dbHelper.insertOrUpdateMedic(medic, true);
                     }
                 }
 
-                // Aplică filtrele curente
-                filterMedici();
+                // Doar actualizează afișajul dacă lista s-a schimbat semnificativ
+                if (isMediciListDifferent(mediciList, updatedMedici)) {
+                    runOnUiThread(() -> {
+                        mediciList.clear();
+                        mediciList.addAll(updatedMedici);
+                        filterMedici(searchEditText.getText().toString());
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Silent fail - continue with SQLite data
+            }
+        });
+    }
+
+    private void loadMediciFromFirebase() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Construiește query-ul în funcție de spitalId
+        Query query;
+        if (spitalId != null) {
+            query = mDatabase.child("medici").orderByChild("spital").equalTo(spitalNume);
+        } else {
+            query = mDatabase.child("medici");
+        }
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mediciList.clear();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Medic medic = snapshot.getValue(Medic.class);
+                    if (medic != null) {
+                        medic.setId(snapshot.getKey());
+                        mediciList.add(medic);
+
+                        // Salvează în SQLite pentru accesul offline
+                        dbHelper.insertOrUpdateMedic(medic, true);
+                    }
+                }
+
+                // Inițializează lista filtrată cu toți medicii
+                filteredList.clear();
+                filteredList.addAll(mediciList);
+                mediciAdapter.notifyDataSetChanged();
+
                 progressBar.setVisibility(View.GONE);
+
+                // Actualizează vizibilitatea pentru lista goală
+                updateEmptyView();
             }
 
             @Override
@@ -185,20 +237,33 @@ public class MediciActivity extends AppCompatActivity {
         });
     }
 
-    private void filterMedici() {
-        String selectedSpital = spitalSpinner.getSelectedItem().toString();
-        String selectedSpecialitate = specialitateSpinner.getSelectedItem().toString();
+    private boolean isMediciListDifferent(List<Medic> list1, List<Medic> list2) {
+        if (list1.size() != list2.size()) return true;
 
+        // Verifică dacă s-au schimbat ID-urile medicilor
+        for (int i = 0; i < list1.size(); i++) {
+            if (!list1.get(i).getId().equals(list2.get(i).getId())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void filterMedici(String query) {
         filteredList.clear();
 
-        for (Medic medic : medicList) {
-            boolean spitalMatch = selectedSpital.equals("Toate spitalele") ||
-                    medic.getSpital().equals(selectedSpital);
-            boolean specialitateMatch = selectedSpecialitate.equals("Toate specialitățile") ||
-                    medic.getSpecialitate().equals(selectedSpecialitate);
+        if (query.isEmpty()) {
+            filteredList.addAll(mediciList);
+        } else {
+            String lowerCaseQuery = query.toLowerCase().trim();
 
-            if (spitalMatch && specialitateMatch) {
-                filteredList.add(medic);
+            for (Medic medic : mediciList) {
+                if (medic.getNume().toLowerCase().contains(lowerCaseQuery) ||
+                        medic.getPrenume().toLowerCase().contains(lowerCaseQuery) ||
+                        (medic.getSpecialitate() != null && medic.getSpecialitate().toLowerCase().contains(lowerCaseQuery))) {
+                    filteredList.add(medic);
+                }
             }
         }
 
@@ -210,6 +275,14 @@ public class MediciActivity extends AppCompatActivity {
         if (filteredList.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
             mediciRecyclerView.setVisibility(View.GONE);
+
+            // Mesaj în funcție de căutare
+            String searchText = searchEditText.getText().toString();
+            if (!searchText.isEmpty()) {
+                emptyView.setText("Nu am găsit medici care să corespundă căutării tale");
+            } else {
+                emptyView.setText("Nu există medici disponibili");
+            }
         } else {
             emptyView.setVisibility(View.GONE);
             mediciRecyclerView.setVisibility(View.VISIBLE);

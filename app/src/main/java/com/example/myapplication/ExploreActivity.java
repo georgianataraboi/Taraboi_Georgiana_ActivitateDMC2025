@@ -1,4 +1,3 @@
-// ExploreActivity.java
 package com.example.myapplication;
 
 import android.content.Intent;
@@ -7,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +38,10 @@ public class ExploreActivity extends AppCompatActivity {
     private TextView statisticsText;
     private Button viewAllSpitaleBtn, viewAllMediciBtn;
 
+    // Adaugă DatabaseHelper și SyncManager
+    private DatabaseHelper dbHelper;
+    private SyncManager syncManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +53,10 @@ public class ExploreActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Explorează rețeaua");
 
-        // Inițializează Firebase
+        // Inițializează Firebase și SQLite
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        dbHelper = DatabaseHelper.getInstance(this);
+        syncManager = new SyncManager(this);
 
         // Inițializează vizualizările
         spitaleRecyclerView = findViewById(R.id.spitale_recycler_view);
@@ -73,8 +79,11 @@ public class ExploreActivity extends AppCompatActivity {
         mediciRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mediciRecyclerView.setAdapter(mediciAdapter);
 
-        // Încarcă datele
-        loadData();
+        // Încarcă datele din SQLite mai întâi
+        loadDataFromSQLite();
+
+        // Apoi încearcă să actualizezi din Firebase
+        syncDataFromFirebase();
 
         // Configurează butoanele pentru vizualizare completă
         viewAllSpitaleBtn.setOnClickListener(new View.OnClickListener() {
@@ -94,10 +103,72 @@ public class ExploreActivity extends AppCompatActivity {
         });
     }
 
-    private void loadData() {
+    private void loadDataFromSQLite() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Obține statistici despre spitale și medici
+        // Încarcă datele din SQLite
+        List<Spital> allSpitale = dbHelper.getAllSpitale();
+        List<Medic> allMedici = getAllMedici(); // Trebuie să adaugi această metodă în DatabaseHelper
+
+        // Actualizează statisticile
+        String stats = "Rețeaua GeoMed include " + allSpitale.size() + " spitale militare și " +
+                allMedici.size() + " medici specialiști din diverse domenii medicale.";
+        statisticsText.setText(stats);
+
+        // Afișează primele 5 spitale
+        spitalList.clear();
+        for (int i = 0; i < Math.min(5, allSpitale.size()); i++) {
+            spitalList.add(allSpitale.get(i));
+        }
+        spitaleAdapter.notifyDataSetChanged();
+
+        // Afișează primii 5 medici
+        medicList.clear();
+        for (int i = 0; i < Math.min(5, allMedici.size()); i++) {
+            medicList.add(allMedici.get(i));
+        }
+        mediciAdapter.notifyDataSetChanged();
+
+        progressBar.setVisibility(View.GONE);
+
+        // Dacă nu există date în SQLite, încearcă Firebase
+        if (allSpitale.isEmpty() || allMedici.isEmpty()) {
+            loadDataFromFirebase();
+        }
+    }
+
+    private void syncDataFromFirebase() {
+        // Sincronizare în background
+        syncManager.setSyncListener(new SyncManager.SyncListener() {
+            @Override
+            public void onSyncStarted() {
+                // Nu arătăm nimic, sincronizarea este în background
+            }
+
+            @Override
+            public void onSyncProgress(String message) {
+                // Opțional: poți actualiza un indicator subtil de sincronizare
+            }
+
+            @Override
+            public void onSyncComplete(boolean success, String message) {
+                if (success) {
+                    runOnUiThread(() -> {
+                        // Reîncarcă datele după sincronizare
+                        loadDataFromSQLite();
+                    });
+                }
+            }
+        });
+
+        // Pornește sincronizarea
+        syncManager.syncFromFirebase();
+    }
+
+    private void loadDataFromFirebase() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Încarcă direct din Firebase ca fallback
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -116,10 +187,11 @@ public class ExploreActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 progressBar.setVisibility(View.GONE);
+                Toast.makeText(ExploreActivity.this, "Eroare la încărcarea datelor", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Încarcă spitalele (limitat la 5)
+        // Încarcă spitalele (limitat la 5) din Firebase
         mDatabase.child("spitale").limitToFirst(5).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -130,6 +202,9 @@ public class ExploreActivity extends AppCompatActivity {
                     if (spital != null) {
                         spital.setId(snapshot.getKey());
                         spitalList.add(spital);
+
+                        // Salvează în SQLite
+                        dbHelper.insertOrUpdateSpital(spital, true);
                     }
                 }
 
@@ -138,11 +213,11 @@ public class ExploreActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Gestionează eroarea
+                Toast.makeText(ExploreActivity.this, "Eroare la încărcarea spitalelor", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Încarcă medicii (limitat la 5)
+        // Încarcă medicii (limitat la 5) din Firebase
         mDatabase.child("medici").limitToFirst(5).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -153,6 +228,9 @@ public class ExploreActivity extends AppCompatActivity {
                     if (medic != null) {
                         medic.setId(snapshot.getKey());
                         medicList.add(medic);
+
+                        // Salvează în SQLite
+                        dbHelper.insertOrUpdateMedic(medic, true);
                     }
                 }
 
@@ -161,9 +239,17 @@ public class ExploreActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Gestionează eroarea
+                Toast.makeText(ExploreActivity.this, "Eroare la încărcarea medicilor", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Adaugă această metodă pentru a obține toți medicii din SQLite
+    private List<Medic> getAllMedici() {
+        List<Medic> medici = new ArrayList<>();
+        // Trebuie să adaugi metoda getAllMedici() în DatabaseHelper
+        // sau să folosești getMediciForSpital(null) adaptat pentru toți medicii
+        return medici;
     }
 
     @Override

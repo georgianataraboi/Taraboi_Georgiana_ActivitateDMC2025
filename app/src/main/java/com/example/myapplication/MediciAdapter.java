@@ -1,4 +1,3 @@
-// MediciAdapter.java
 package com.example.myapplication;
 
 import android.content.Context;
@@ -14,17 +13,25 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
 public class MediciAdapter extends RecyclerView.Adapter<MediciAdapter.MedicViewHolder> {
 
-    private List<Medic> medicList;
+    private List<Medic> mediciList;
     private Context context;
+    private RequestOptions glideOptions;
 
-    public MediciAdapter(List<Medic> medicList, Context context) {
-        this.medicList = medicList;
+    public MediciAdapter(List<Medic> mediciList, Context context) {
+        this.mediciList = mediciList;
         this.context = context;
+
+        // Pre-configure Glide options for better performance
+        this.glideOptions = new RequestOptions()
+                .placeholder(R.drawable.ic_doctor)
+                .error(R.drawable.ic_doctor)
+                .circleCrop();
     }
 
     @NonNull
@@ -37,48 +44,53 @@ public class MediciAdapter extends RecyclerView.Adapter<MediciAdapter.MedicViewH
 
     @Override
     public void onBindViewHolder(@NonNull MedicViewHolder holder, int position) {
-        Medic medic = medicList.get(position);
+        Medic medic = mediciList.get(position);
 
-        holder.numeTv.setText(medic.getNumeComplet());
-        holder.specialitateTv.setText(medic.getSpecialitate());
-        holder.spitalTv.setText(medic.getSpital());
+        if (medic != null) {
+            holder.numeTv.setText(medic.getNume());
 
-        // Încarcă imaginea cu Glide dacă este disponibilă
-        if (medic.getImagine() != null && !medic.getImagine().isEmpty()) {
-            Glide.with(context)
-                    .load(medic.getImagine())
-                    .placeholder(R.drawable.ic_doctor)
-                    .error(R.drawable.ic_doctor)
-                    .into(holder.profileImage);
-        } else {
-            holder.profileImage.setImageResource(R.drawable.ic_doctor);
+            // Verifică dacă avem specialitate
+            if (medic.getSpecialitate() != null && !medic.getSpecialitate().isEmpty()) {
+                holder.specialitateTv.setText(medic.getSpecialitate());
+                holder.specialitateTv.setVisibility(View.VISIBLE);
+            } else {
+                holder.specialitateTv.setVisibility(View.GONE);
+            }
+
+            // Încarcă imaginea cu Glide dacă este disponibilă
+            if (medic.getImagine() != null && !medic.getImagine().isEmpty()) {
+                Glide.with(context)
+                        .load(medic.getImagine())
+                        .apply(glideOptions)
+                        .into(holder.imageView);
+            } else {
+                holder.imageView.setImageResource(R.drawable.ic_doctor);
+            }
+
+            // Setează clickListener
+            holder.cardView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, MedicDetailActivity.class);
+                intent.putExtra("medicId", medic.getId());
+                context.startActivity(intent);
+            });
         }
-
-        // Setează clickListener
-        holder.cardView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, MedicDetailActivity.class);
-            intent.putExtra("medicId", medic.getId());
-            context.startActivity(intent);
-        });
     }
 
     @Override
     public int getItemCount() {
-        return medicList.size();
+        return mediciList.size();
     }
 
     public static class MedicViewHolder extends RecyclerView.ViewHolder {
-        TextView numeTv, specialitateTv, spitalTv, veziProfilTv;
-        ImageView profileImage;
+        TextView numeTv, specialitateTv;
+        ImageView imageView;
         CardView cardView;
 
         public MedicViewHolder(@NonNull View itemView) {
             super(itemView);
             numeTv = itemView.findViewById(R.id.medic_nume);
             specialitateTv = itemView.findViewById(R.id.medic_specialitate);
-            spitalTv = itemView.findViewById(R.id.medic_spital);
-            profileImage = itemView.findViewById(R.id.medic_image);
-            veziProfilTv = itemView.findViewById(R.id.vezi_profil);
+            imageView = itemView.findViewById(R.id.medic_image);
             cardView = itemView.findViewById(R.id.medic_card);
         }
     }

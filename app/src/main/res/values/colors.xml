@@ -22,22 +22,22 @@
     <color name="tomato">#FF6347</color>
     <color name="orangered">#FF4500</color>
     <color name="orange">#FFA500</color>
+    <color name="textPrimary">#212121</color>
+    <color name="colorPrimaryLight">#D1C4E9</color>
     <color name="dark_orange">#FF8C00</color>
     <color name="coral">#FF7F50</color>
-    <color name="green_medical">#008000</color> <!-- Replace with actual color code -->
-    <color name="green_dark">#006400</color>    <!-- Replace with actual color code -->
-    <color name="green_light">#90EE90</color>   <!-- Replace with actual color code -->
-    <color name="green_medium">#32CD32</color>  <!-- Replace with actual color code -->
+    <color name="green_medical">#008000</color>
+    <color name="green_dark">#006400</color>
+    <color name="green_light">#90EE90</color>
+    <color name="green_medium">#32CD32</color>
     <color name="primary_purple">#6200EE</color>
     <color name="primary_purple_dark">#3700B3</color>
     <color name="dark_purple">#4A0072</color>
     <color name="light_purple">#BB86FC</color>
-
-    <!-- Secondary colors -->
+    <color name="chip_background_default">#F0F0F0</color>
     <color name="teal_200">#03DAC5</color>
     <color name="teal_700">#018786</color>
 
-    <!-- Text colors -->
     <color name="dark_text">#333333</color>
     <color name="grey_text">#757575</color>
     <color name="colorPrimary">#6200EE</color>
@@ -47,4 +47,41 @@
     <color name="colorTextPrimary">#333333</color>
     <color name="colorTextSecondary">#757575</color>
     <color name="colorWhite">#FFFFFF</color>
+
+    <color name="background">#F5F7FA</color>
+    <color name="chart_color1">#0288D1</color>
+    <color name="chart_color2">#4CAF50</color>
+    <color name="chart_color3">#FFC107</color>
+    <color name="chart_color4">#F44336</color>
+    <color name="chart_color5">#9C27B0</color>
+
+    <!-- Culori pentru butoane - modul normal (light) -->
+    <color name="button_light_background">#9C27B0</color>
+    <color name="button_light_text">#F2EAF6</color>
+
+    <!-- Culori pentru butoane - modul întunecat (dark) -->
+    <color name="button_dark_background">#7B1FA2</color>
+    <color name="button_dark_text">#FFE0B2</color>
+
+    <!-- Culori pentru background general -->
+    <color name="light_background_tint">#FFFFFF</color>
+    <color name="dark_background_tint">#451F4E</color>
+
+    <!-- Culori pentru text -->
+    <color name="light_text_color">#DC8AD5</color>
+    <color name="dark_text_color">#C78DDB</color>
+
+    <!-- Culori pentru iconițe -->
+    <color name="icon_light_tint">#9C27B0</color>
+    <color name="icon_dark_tint">#BA68C8</color>
+    <color name="light_subtitle_color">#C78DDB</color> <!-- Dark Gray -->
+
+    <!-- Culori pentru subtitle - modul întunecat (dark) -->
+    <color name="dark_subtitle_color">#7B1FA2</color> <!-- Light Gray -->
+
+    <!-- Culori pentru description - modul normal (light) -->
+    <color name="light_description_color">#BA68C8</color> <!-- Medium Gray -->
+
+    <!-- Culori pentru description - modul întunecat (dark) -->
+    <color name="dark_description_color">#451F4E</color> <!-- Light Medium Gray -->
 </resources>

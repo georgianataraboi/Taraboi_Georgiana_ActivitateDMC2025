@@ -22,6 +22,8 @@ public class SignupActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference reference;
 
+    private DatabaseHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,24 +36,15 @@ public class SignupActivity extends AppCompatActivity {
         signupButton = findViewById(R.id.signup_button);
         loginRedirectText = findViewById(R.id.loginRedirectText);
 
+        // Inițializează DatabaseHelper
+        dbHelper = DatabaseHelper.getInstance(this);
+
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                database = FirebaseDatabase.getInstance();
-                reference = database.getReference("users");
-
-                String name = signupName.getText().toString();
-                String email = signupEmail.getText().toString();
-                String username = signupUsername.getText().toString();
-                String password = signupPassword.getText().toString();
-
-                HelperClass helperClass = new HelperClass(name, email, username, password);
-                reference.child(username).setValue(helperClass);
-
-                Toast.makeText(SignupActivity.this, "You have signup successfully!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                startActivity(intent);
+                if (validateFields()) {
+                    registerUser();
+                }
             }
         });
 
@@ -62,5 +55,78 @@ public class SignupActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private boolean validateFields() {
+        String name = signupName.getText().toString().trim();
+        String email = signupEmail.getText().toString().trim();
+        String username = signupUsername.getText().toString().trim();
+        String password = signupPassword.getText().toString().trim();
+
+        if (name.isEmpty()) {
+            signupName.setError("Name is required");
+            return false;
+        }
+
+        if (email.isEmpty()) {
+            signupEmail.setError("Email is required");
+            return false;
+        }
+
+        if (username.isEmpty()) {
+            signupUsername.setError("Username is required");
+            return false;
+        }
+
+        if (password.isEmpty()) {
+            signupPassword.setError("Password is required");
+            return false;
+        }
+
+        if (password.length() < 6) {
+            signupPassword.setError("Password must be at least 6 characters");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void registerUser() {
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference("users");
+
+        String name = signupName.getText().toString().trim();
+        String email = signupEmail.getText().toString().trim();
+        String username = signupUsername.getText().toString().trim();
+        String password = signupPassword.getText().toString().trim();
+
+        /*// Verifică dacă utilizatorul există deja
+        if (dbHelper.checkUserExists(username)) {
+            signupUsername.setError("Username already exists");
+            return;
+        }
+*/
+        HelperClass helperClass = new HelperClass(name, email, username, password);
+
+        // Salvează în Firebase
+        reference.child(username).setValue(helperClass)
+                .addOnSuccessListener(aVoid -> {
+                    // Salvează în SQLite pentru cache
+                    dbHelper.insertOrUpdateUser(helperClass, true); // true = from Firebase
+
+                    Toast.makeText(SignupActivity.this, "You have signed up successfully!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    // Dacă Firebase eșuează, salvează doar în SQLite
+                    dbHelper.insertOrUpdateUser(helperClass, false); // false = local
+
+                    Toast.makeText(SignupActivity.this, "Signed up offline. Will sync when online.", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
     }
 }

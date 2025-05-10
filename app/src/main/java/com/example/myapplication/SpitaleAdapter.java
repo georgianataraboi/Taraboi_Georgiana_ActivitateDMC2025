@@ -1,8 +1,8 @@
-// SpitaleAdapter.java
 package com.example.myapplication;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +14,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -21,10 +22,17 @@ public class SpitaleAdapter extends RecyclerView.Adapter<SpitaleAdapter.SpitalVi
 
     private List<Spital> spitalList;
     private Context context;
+    private RequestOptions glideOptions;
 
     public SpitaleAdapter(List<Spital> spitalList, Context context) {
         this.spitalList = spitalList;
         this.context = context;
+
+        // Pre-configure Glide options for better performance
+        this.glideOptions = new RequestOptions()
+                .placeholder(R.drawable.ic_hospital)
+                .error(R.drawable.ic_hospital)
+                .centerCrop();
     }
 
     @NonNull
@@ -46,19 +54,33 @@ public class SpitaleAdapter extends RecyclerView.Adapter<SpitaleAdapter.SpitalVi
         if (spital.getImagine() != null && !spital.getImagine().isEmpty()) {
             Glide.with(context)
                     .load(spital.getImagine())
-                    .placeholder(R.drawable.ic_hospital)
-                    .error(R.drawable.ic_hospital)
+                    .apply(glideOptions)
                     .into(holder.imageView);
         } else {
             holder.imageView.setImageResource(R.drawable.ic_hospital);
         }
 
-        // Setează clickListener
-        holder.cardView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, SpitalDetailActivity.class);
-            intent.putExtra("spitalId", spital.getId());
-            context.startActivity(intent);
-        });
+        // Setează clickListener pe întregul card
+        holder.cardView.setOnClickListener(v -> openHospitalDetails(spital));
+
+        // Adaugă și click listener pentru butonul "Vezi"
+        if (holder.veziDetailsTv != null) {
+            holder.veziDetailsTv.setOnClickListener(v -> openHospitalDetails(spital));
+        }
+    }
+
+    private void openHospitalDetails(Spital spital) {
+        // Salvează ultimul spital vizitat în SharedPreferences
+        SharedPreferences prefs = context.getSharedPreferences("GeoMedUserPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastVisitedHospital", spital.getNume());
+        editor.putBoolean("hasVisitedHospital", true);
+        editor.apply();
+
+        // Navigare către detalii
+        Intent intent = new Intent(context, SpitalDetailActivity.class);
+        intent.putExtra("spitalId", spital.getId());
+        context.startActivity(intent);
     }
 
     @Override
@@ -67,7 +89,7 @@ public class SpitaleAdapter extends RecyclerView.Adapter<SpitaleAdapter.SpitalVi
     }
 
     public static class SpitalViewHolder extends RecyclerView.ViewHolder {
-        TextView numeTv, adresaTv;
+        TextView numeTv, adresaTv, veziDetailsTv;
         ImageView imageView;
         CardView cardView;
 
@@ -77,6 +99,12 @@ public class SpitaleAdapter extends RecyclerView.Adapter<SpitaleAdapter.SpitalVi
             adresaTv = itemView.findViewById(R.id.spital_adresa);
             imageView = itemView.findViewById(R.id.spital_image);
             cardView = itemView.findViewById(R.id.spital_card);
+            veziDetailsTv = itemView.findViewById(R.id.vezi_detalii);
         }
+    }
+
+    public void updateList(List<Spital> newList) {
+        this.spitalList = newList;
+        notifyDataSetChanged();
     }
 }

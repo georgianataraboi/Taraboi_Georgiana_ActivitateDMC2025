@@ -1,85 +1,408 @@
-// MainActivity.java
 package com.example.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
+import android.content.res.ColorStateList;
+import androidx.core.content.ContextCompat;
+import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
+
+    // Declară variabilele pentru preferințe și UI
+    private boolean isDarkModeEnabled = false;
+    private String lastVisitedHospital = "";
+    private SharedPreferences prefsApp;
+    private SharedPreferences prefsUser;
+
+    // Adaugă helper-urile pentru baza de date
+    private DatabaseHelper dbHelper;
+    private SyncManager syncManager;
+    private boolean isSyncing = false;
+
+    // UI elements
+    private TextView syncStatusText;
+    private ProgressBar syncProgressBar;
+    private ImageButton syncButton;  // Corectat: ImageButton în loc de Button
+    private TextView lastVisitText;
+    private Button migrationButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Încarcă preferințele utilizatorului înainte de a seta layout-ul
+        loadUserPreferences();
+
+        // Aplică tema în funcție de preferințe
+        if (isDarkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         setContentView(R.layout.activity_main);
 
-        // Inițializează datele Firebase
-        initializeFirebaseData();
+        // Inițializează helper-urile pentru baza de date
+        dbHelper = DatabaseHelper.getInstance(this);
+        syncManager = new SyncManager(this);
 
-        // Inițializează vizualizările
+        // Inițializează UI elements
+        syncStatusText = findViewById(R.id.sync_status_text);
+        syncProgressBar = findViewById(R.id.sync_progress_bar);
+        syncButton = findViewById(R.id.sync_button);
+        lastVisitText = findViewById(R.id.last_visit_text);
+        migrationButton = findViewById(R.id.migration_button);
+
+        // Setează listener pentru evenimente de sincronizare
+        setupSyncListener();
+
+        // Verifică dacă trebuie să migrezi datele de la Firebase la SQLite
+        checkMigrationStatus();
+
+        // Pornește serviciul de sincronizare automată
+        SyncService.startSyncService(this);
+
+        // Inițializează controlele
+        setupUIControls();
+    }
+
+    private void setupSyncListener() {
+        syncManager.setSyncListener(new SyncManager.SyncListener() {
+            @Override
+            public void onSyncStarted() {
+                isSyncing = true;
+                runOnUiThread(() -> {
+                    syncProgressBar.setVisibility(View.VISIBLE);
+                    syncStatusText.setText("Sincronizare...");
+                    syncStatusText.setTextColor(getResources().getColor(android.R.color.holo_purple));
+                    syncButton.setEnabled(false);
+                    // Animație de rotație pentru butonul de sync
+                    syncButton.animate().rotation(360f).setDuration(1000).start();
+                });
+            }
+
+            @Override
+            public void onSyncProgress(String message) {
+                runOnUiThread(() -> {
+                    syncStatusText.setText(message);
+                });
+            }
+
+            @Override
+            public void onSyncComplete(boolean success, String message) {
+                isSyncing = false;
+                runOnUiThread(() -> {
+                    syncProgressBar.setVisibility(View.GONE);
+                    syncButton.setEnabled(true);
+                    syncButton.animate().rotation(0f).setDuration(300).start();
+
+                    if (success) {
+                        syncStatusText.setText("Sincronizat");
+                        syncStatusText.setTextColor(getResources().getColor(android.R.color.holo_purple));
+                    } else {
+                        syncStatusText.setText("Eroare");
+                        syncStatusText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                        Toast.makeText(MainActivity.this,
+                                "Eroare la sincronizare: " + message,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void checkMigrationStatus() {
+        boolean isDataMigrated = prefsApp.getBoolean("isDataMigrated", false);
+        boolean isDataInitialized = prefsApp.getBoolean("isDataInitialized", false);
+
+        if (!isDataMigrated && isDataInitialized) {
+            // Arată butonul de migrare
+            migrationButton.setVisibility(View.VISIBLE);
+            migrationButton.setOnClickListener(v -> showMigrationDialog());
+
+            // Notifică utilizatorul că există date care trebuie migrate
+            syncStatusText.setText("Date în Firebase");
+            syncStatusText.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+        } else if (!isDataInitialized) {
+            // Trebuie inițializate datele în Firebase
+            migrationButton.setVisibility(View.GONE);
+            syncStatusText.setText("Inițializare...");
+            initializeFirebaseData();
+        } else {
+            // Datele sunt deja migrate, ascunde butonul
+            migrationButton.setVisibility(View.GONE);
+
+            // Verifică starea sincronizării
+            updateSyncStatus();
+        }
+    }
+
+    private void setupUIControls() {
+        // Setează iconurile și butoanele
         ImageView programareIcon = findViewById(R.id.programare_icon);
         ImageView spitaleIcon = findViewById(R.id.spitale_icon);
         ImageView mediciIcon = findViewById(R.id.medici_icon);
         Button exploreButton = findViewById(R.id.explore_button);
         Button detaliiButton = findViewById(R.id.detalii_button);
+        Button statisticsButton = findViewById(R.id.statistics_button);
+        SwitchCompat darkModeSwitch = findViewById(R.id.dark_mode_switch);
 
-        // Setează listenerii pentru fiecare icon
-        programareIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navighează către Pagina de Programări
-                Intent intent = new Intent(MainActivity.this, SimpleProgActivity.class);
-                startActivity(intent);
-            }
+        // Găsește alte elemente UI care ar trebui să schimbe culoarea
+        TextView welcomeText = findViewById(R.id.welcome_title); // Adaugă ID-ul corect
+//        LinearLayout mainLayout = findViewById(R.id.); // Adaugă ID-ul corect
+
+        // Updatează display-ul ultimului spital vizitat
+        updateLastVisitText();
+
+        // Configurează switch-ul pentru mod întunecat
+        darkModeSwitch.setChecked(isDarkModeEnabled);
+        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isDarkModeEnabled = isChecked;
+            saveUserPreferences();
+
+            // Schimbă culorile butoanelor și elementelor UI
+            updateUIColors(isChecked);
         });
 
-        spitaleIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navighează către Pagina de Spitale
-                Intent intent = new Intent(MainActivity.this, SpitaleActivity.class);
-                startActivity(intent);
-            }
+        // Aplică culorile la început
+        updateUIColors(isDarkModeEnabled);
+
+        // Buton de sincronizare
+        syncButton.setOnClickListener(v -> performSync());
+
+        // Butoane de navigare (codul tău existent)
+        programareIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ProgramareActivity.class);
+            startActivity(intent);
         });
 
-        mediciIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navighează către Pagina de Medici
-                Intent intent = new Intent(MainActivity.this, MediciActivity.class);
-                startActivity(intent);
-            }
+        spitaleIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SpitaleActivity.class);
+            startActivity(intent);
         });
 
-        exploreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navighează către pagina de explorare
-                Intent intent = new Intent(MainActivity.this, ExploreActivity.class);
-                startActivity(intent);
-            }
+        mediciIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MediciActivity.class);
+            startActivity(intent);
         });
 
-        detaliiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDetailsDialog();
-            }
+        exploreButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ExploreActivity.class);
+            startActivity(intent);
+        });
+
+        detaliiButton.setOnClickListener(v -> showDetailsDialog());
+
+        statisticsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+            startActivity(intent);
         });
     }
 
+    // Metodă pentru a actualiza culorile UI
+    private void updateUIColors(boolean isDarkMode) {
+        // Definește culorile pentru modul normal și întunecat
+        int buttonBackgroundColor;
+        int buttonTextColor;
+        int backgroundTint;
+        int textColor;
+        int subtitleColor;
+        int descriptionColor;
+
+        if (isDarkMode) {
+            // Culori pentru modul întunecat
+            buttonBackgroundColor = ContextCompat.getColor(this, R.color.button_dark_background);
+            buttonTextColor = ContextCompat.getColor(this, R.color.button_dark_text);
+            backgroundTint = ContextCompat.getColor(this, R.color.dark_background_tint);
+            textColor = ContextCompat.getColor(this, R.color.dark_text_color);
+            subtitleColor = ContextCompat.getColor(this, R.color.dark_subtitle_color);
+            descriptionColor = ContextCompat.getColor(this, R.color.dark_description_color);
+        } else {
+            // Culori pentru modul normal
+            buttonBackgroundColor = ContextCompat.getColor(this, R.color.button_light_background);
+            buttonTextColor = ContextCompat.getColor(this, R.color.button_light_text);
+            backgroundTint = ContextCompat.getColor(this, R.color.light_background_tint);
+            textColor = ContextCompat.getColor(this, R.color.light_text_color);
+            subtitleColor = ContextCompat.getColor(this, R.color.light_subtitle_color);
+            descriptionColor = ContextCompat.getColor(this, R.color.light_description_color);
+        }
+
+        // Aplică culorile la butoane
+        Button exploreButton = findViewById(R.id.explore_button);
+        Button detaliiButton = findViewById(R.id.detalii_button);
+        Button statisticsButton = findViewById(R.id.statistics_button);
+
+        // Schimbă backgroundul și culoarea textului butoanelor
+        if (exploreButton != null) {
+            exploreButton.setBackgroundTintList(ColorStateList.valueOf(buttonBackgroundColor));
+            exploreButton.setTextColor(buttonTextColor);
+        }
+
+        if (detaliiButton != null) {
+            detaliiButton.setBackgroundTintList(ColorStateList.valueOf(buttonBackgroundColor));
+            detaliiButton.setTextColor(buttonTextColor);
+        }
+
+        if (statisticsButton != null) {
+            statisticsButton.setBackgroundTintList(ColorStateList.valueOf(buttonBackgroundColor));
+            statisticsButton.setTextColor(buttonTextColor);
+        }
+
+        // Schimbă culoarea icoanelor (dacă sunt ImageView-uri cu tint)
+//        ImageView programareIcon = findViewById(R.id.programare_icon);
+//        ImageView spitaleIcon = findViewById(R.id.spitale_icon);
+//        ImageView mediciIcon = findViewById(R.id.medici_icon);
+
+        int iconTint = isDarkMode ? ContextCompat.getColor(this, R.color.icon_dark_tint) :
+                ContextCompat.getColor(this, R.color.icon_light_tint);
+
+//        if (programareIcon != null) programareIcon.setColorFilter(iconTint);
+//        if (spitaleIcon != null) spitaleIcon.setColorFilter(iconTint);
+//        if (mediciIcon != null) mediciIcon.setColorFilter(iconTint);
+
+        // Schimbă culoarea textului (dacă ai)
+        TextView welcomeText = findViewById(R.id.welcome_title);
+        TextView lastVisitText = findViewById(R.id.last_visit_text);
+        TextView subtitleText = findViewById(R.id.subtitle);
+        TextView descriptionText = findViewById(R.id.description);
+
+        if (welcomeText != null) welcomeText.setTextColor(textColor);
+        if (lastVisitText != null) lastVisitText.setTextColor(textColor);
+        if (subtitleText != null) subtitleText.setTextColor(subtitleColor);
+        if (descriptionText != null) descriptionText.setTextColor(descriptionColor);
+//        // Schimbă backgroundul principal (opțional)
+//        View mainLayout = findViewById(R.id.main_layout);
+//        if (mainLayout != null) {
+//            mainLayout.setBackgroundColor(backgroundTint);
+//        }
+    }
+
+    private void showMigrationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Migrare Date");
+        builder.setMessage("Datele vor fi migrate de la Firebase la SQLite pentru o experiență mai rapidă și funcționalitate offline.\n\nAceasta operație va dura câteva momente.");
+        builder.setCancelable(false);
+
+        builder.setPositiveButton("Începe migrarea", (dialog, which) -> {
+            performMigration();
+        });
+
+        builder.setNegativeButton("Mai târziu", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        builder.show();
+    }
+
+    private void performMigration() {
+        // Arată progress
+        migrationButton.setText("Migrare în curs...");
+        migrationButton.setEnabled(false);
+
+        // Sincronizează toate datele de la Firebase la SQLite
+        syncManager.setSyncListener(new SyncManager.SyncListener() {
+            @Override
+            public void onSyncStarted() {
+                runOnUiThread(() -> {
+                    syncProgressBar.setVisibility(View.VISIBLE);
+                    Toast.makeText(MainActivity.this, "Migrare începută...", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onSyncProgress(String message) {
+                runOnUiThread(() -> {
+                    syncStatusText.setText("Migrare: " + message);
+                });
+            }
+
+            @Override
+            public void onSyncComplete(boolean success, String message) {
+                runOnUiThread(() -> {
+                    syncProgressBar.setVisibility(View.GONE);
+
+                    if (success) {
+                        // Marchează migrarea ca finalizată
+                        SharedPreferences.Editor editor = prefsApp.edit();
+                        editor.putBoolean("isDataMigrated", true);
+                        editor.apply();
+
+                        // IMPORTANT: Ascunde butonul de migrare
+                        migrationButton.setVisibility(View.GONE);
+
+                        Toast.makeText(MainActivity.this,
+                                "Migrare completă! Aplicația este acum optimizată pentru lucru offline.",
+                                Toast.LENGTH_LONG).show();
+
+                        // Restabilește listener-ul normal pentru sincronizare
+                        setupSyncListener();
+
+                        // Actualizează status-ul
+                        updateSyncStatus();
+                    } else {
+                        migrationButton.setText("Migrare date → SQLite");
+                        migrationButton.setEnabled(true);
+                        Toast.makeText(MainActivity.this,
+                                "Eroare la migrare: " + message,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+
+        syncManager.syncFromFirebase();
+    }
+
+    private void performSync() {
+        if (isSyncing) {
+            Toast.makeText(this, "Sincronizare deja în curs...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        syncManager.doFullSync();
+    }
+
+    private void updateLastVisitText() {
+        if (!lastVisitedHospital.isEmpty()) {
+            lastVisitText.setText("Ultimul spital vizitat: " + lastVisitedHospital);
+            lastVisitText.setVisibility(View.VISIBLE);
+        } else {
+            lastVisitText.setText("Ultimul spital vizitat: -");
+            lastVisitText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateSyncStatus() {
+        if (syncManager.hasPendingSyncOperations()) {
+            syncStatusText.setText("Modificări nesincronizate");
+            syncStatusText.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+        } else {
+            syncStatusText.setText("Sincronizat");
+            syncStatusText.setTextColor(getResources().getColor(android.R.color.holo_purple));
+        }
+    }
+
+    // Restul metodelor rămân la fel...
     private void showDetailsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Despre GeoMed");
@@ -90,7 +413,6 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Închide", (dialog, which) -> dialog.dismiss());
 
         builder.setNeutralButton("Vezi pe hartă", (dialog, which) -> {
-            // Deschide Google Maps cu locația GeoMed
             Intent intent = new Intent(MainActivity.this, MapActivity.class);
             intent.putExtra("latitude", 44.4424);
             intent.putExtra("longitude", 26.0892);
@@ -102,14 +424,52 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void saveUserPreferences() {
+        prefsUser = getSharedPreferences("GeoMedUserPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefsUser.edit();
+        editor.putBoolean("darkMode", isDarkModeEnabled);
+        editor.putString("lastVisitedHospital", lastVisitedHospital);
+        editor.apply();
+    }
+
+    private void loadUserPreferences() {
+        prefsUser = getSharedPreferences("GeoMedUserPrefs", MODE_PRIVATE);
+        prefsApp = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        isDarkModeEnabled = prefsUser.getBoolean("darkMode", false);
+        lastVisitedHospital = prefsUser.getBoolean("hasVisitedHospital", false) ?
+                prefsUser.getString("lastVisitedHospital", "") : "";
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserPreferences();
+        updateLastVisitText();
+        updateSyncStatus();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Nu oprim serviciul când activitatea este distrusă, el rulează în background
+    }
+
+    public static void setLastVisitedHospital(Context context, String hospitalName) {
+        SharedPreferences prefs = context.getSharedPreferences("GeoMedUserPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastVisitedHospital", hospitalName);
+        editor.putBoolean("hasVisitedHospital", true);
+        editor.apply();
+    }
+
+    // Metodă pentru inițializarea datelor Firebase (ca backup)
     private void initializeFirebaseData() {
+        // Codul tău existent pentru inițializarea datelor în Firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference spitaleRef = database.getReference("spitale");
         DatabaseReference mediciRef = database.getReference("medici");
-
         // Verifică dacă datele au fost deja inițializate
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        boolean isDataInitialized = prefs.getBoolean("isDataInitialized", false);
+        boolean isDataInitialized = prefsApp.getBoolean("isDataInitialized", false);
 
         if (!isDataInitialized) {
             // SPITALE MILITARE DIN ROMÂNIA
@@ -537,10 +897,10 @@ public class MainActivity extends AppCompatActivity {
             mediciRef.push().setValue(medic20);
 
             // Marchează datele ca fiind inițializate
-            SharedPreferences.Editor editor = prefs.edit();
+            SharedPreferences.Editor editor = prefsApp.edit();
             editor.putBoolean("isDataInitialized", true);
             editor.apply();
-
+            performMigration();
             Toast.makeText(this, "Baza de date a fost inițializată cu succes!", Toast.LENGTH_SHORT).show();
         }
     }

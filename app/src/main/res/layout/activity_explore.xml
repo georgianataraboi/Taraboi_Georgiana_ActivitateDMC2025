@@ -127,14 +127,12 @@
 
         <Button
             android:id="@+id/view_all_spitale_btn"
+            style="@style/PurpleGradientButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
-            android:background="@drawable/button_secondary"
-            android:text="Vezi toate spitalele"
-            android:textAllCaps="false"
-            android:textColor="@color/colorPrimaryDark" />
+            android:text="Vezi toate spitalele" />
 
         <TextView
             android:layout_width="match_parent"
@@ -159,23 +157,22 @@
 
         <Button
             android:id="@+id/view_all_medici_btn"
+            style="@style/PurpleGradientButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
-            android:background="@drawable/button_secondary"
-            android:text="Vezi toți medicii"
-            android:textAllCaps="false"
-            android:textColor="@color/colorPrimaryDark" />
+            android:text="Vezi toți medicii" />
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+
 
 </androidx.core.widget.NestedScrollView>

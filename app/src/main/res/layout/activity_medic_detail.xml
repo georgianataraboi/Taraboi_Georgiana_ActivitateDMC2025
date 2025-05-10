@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@android:color/white"
     tools:context=".MedicDetailActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="300dp"
         android:theme="@style/AppTheme">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -18,15 +18,25 @@
             android:layout_height="match_parent"
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:title="">
+            app:titleEnabled="false">
 
-            <ImageView
-                android:id="@+id/medic_image"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_doctor"
-                app:layout_collapseMode="parallax" />
+                app:layout_collapseMode="parallax">
+
+                <ImageView
+                    android:id="@+id/medic_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_doctor" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_overlay" />
+            </FrameLayout>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -35,6 +45,41 @@
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:padding="16dp"
+                app:layout_collapseMode="parallax">
+
+                <TextView
+                    android:id="@+id/medic_nume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="4"
+                    tools:text="Dr. Ion Popescu" />
+
+                <TextView
+                    android:id="@+id/medic_specialitate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="italic"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="4"
+                    tools:text="Cardiologie" />
+            </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -49,122 +94,183 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/medic_nume"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="Dr. Ion Popescu" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white">
 
-            <TextView
-                android:id="@+id/medic_specialitate"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/icon_hospital"
+                             />
+
+                        <TextView
+                            android:id="@+id/medic_spital"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp"
+                            tools:text="Spitalul Militar Central" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_services"
+                            app:tint="@color/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/medic_program"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp"
+                            tools:text="Luni-Vineri: 08:00-14:00" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_phone"
+                            app:tint="@color/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/medic_telefon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp"
+                            tools:text="021 319 3051" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_email"
+                            app:tint="@color/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/medic_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="16sp"
+                            tools:text="ion.popescu@scumc.ro" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/colorAccent"
-                android:textSize="18sp"
-                android:textStyle="italic"
-                tools:text="Cardiologie" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white">
 
-            <TextView
-                android:id="@+id/medic_spital"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_hospital"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="Spitalul Militar Central" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <TextView
-                android:id="@+id/medic_program"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_services"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="Luni-Vineri: 08:00-14:00" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Despre medic:"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/medic_telefon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_services"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="021 319 3051" />
+                    <TextView
+                        android:id="@+id/medic_descriere"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="16sp"
+                        tools:text="Dr. Popescu este specialist în cardiologie intervențională cu peste 15 ani de experiență..." />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-            <TextView
-                android:id="@+id/medic_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_services"
-                android:drawablePadding="8dp"
-                android:textColor="@color/colorAccent"
-                android:textSize="16sp"
-                tools:text="ion.popescu@scumc.ro" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Despre medic:"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medic_descriere"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="16sp"
-                tools:text="Dr. Popescu este specialist în cardiologie intervențională cu peste 15 ani de experiență..." />
-
+            <!-- Updated Buttons Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal"
+                android:gravity="center">
 
                 <Button
                     android:id="@+id/programare_btn"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
-                    android:background="@drawable/button_primary"
-                    android:drawableStart="@drawable/ic_services"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_purple_gradient"
+                    android:drawableStart="@drawable/ic_calendar"
                     android:drawablePadding="8dp"
-                    android:padding="12dp"
+                    android:paddingHorizontal="16dp"
                     android:text="Programare"
                     android:textAllCaps="false"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:elevation="4dp" />
 
                 <Button
                     android:id="@+id/contact_btn"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
-                    android:background="@drawable/button_secondary"
-                    android:drawableStart="@drawable/ic_services"
+                    android:layout_marginStart="8dp"
+                    android:background="@color/white"
+                    android:drawableStart="@drawable/ic_phone"
                     android:drawablePadding="8dp"
-                    android:padding="12dp"
+                    android:paddingHorizontal="16dp"
                     android:text="Contact"
                     android:textAllCaps="false"
-                    android:textColor="@color/colorPrimaryDark" />
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp"
+                    android:elevation="4dp" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
